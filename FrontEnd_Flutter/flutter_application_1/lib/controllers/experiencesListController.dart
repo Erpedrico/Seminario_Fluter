@@ -1,48 +1,61 @@
 import 'package:get/get.dart';
-import 'package:flutter_application_1/models/experienceModel.dart';
-import 'package:flutter_application_1/services/experience.dart';
+import 'package:flutter_application_1/services/experience_service.dart';
+import 'package:flutter_application_1/models/experience_model.dart';
 
 class ExperienceListController extends GetxController {
   var isLoading = true.obs;
   var experienceList = <ExperienceModel>[].obs;
-  final ExperienceService experienceService = ExperienceService();
+  final ExperienceService experienceService = Get.find<ExperienceService>();
 
   @override
   void onInit() {
+    fetchExperiences();
     super.onInit();
-    fetchExperiences();  // Llamada a fetchExperiences al inicializar el controlador
   }
 
-  // Método para obtener las experiencias
   Future<void> fetchExperiences() async {
     try {
-      isLoading(true);  // Establecemos el estado de carga a true
+      isLoading(true);
       var experiences = await experienceService.getExperiences();
       if (experiences != null) {
-        experienceList.assignAll(experiences); // Asignamos las experiencias a la lista
+        experienceList.assignAll(experiences);
       }
     } catch (e) {
       print("Error fetching experiences: $e");
     } finally {
-      isLoading(false);  // Establecemos el estado de carga a false una vez que termine
+      isLoading(false);
     }
   }
 
-  // Método para editar una experiencia
-  Future<void> editExperience(String id, ExperienceModel updatedExperience) async {
+  Future<bool> deleteExperience(String experienceId) async {
     try {
-      isLoading(true);  // Establecemos el estado de carga a true
-      var statusCode = await experienceService.EditExperience(updatedExperience, id);
-      if (statusCode == 201) {
-        Get.snackbar('Éxito', 'Experiencia actualizada con éxito');
-        fetchExperiences();  // Recargamos la lista de experiencias después de editar
+      isLoading(true);
+      var response = await experienceService.deleteExperience(experienceId);
+      if (response == 201) {
+        experienceList.removeWhere((experience) => experience.id == experienceId);
+        Get.snackbar(
+          "Éxito",
+          "Experiencia eliminada correctamente",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return true;
       } else {
-        Get.snackbar('Error', 'Error al actualizar la experiencia');
+        Get.snackbar(
+          "Error",
+          "No se pudo eliminar la experiencia",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return false;
       }
     } catch (e) {
-      print("Error editing experience: $e");
+      Get.snackbar(
+        "Error",
+        "Ocurrió un error al eliminar la experiencia",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
     } finally {
-      isLoading(false);  // Establecemos el estado de carga a false una vez que termine
+      isLoading(false);
     }
   }
 }
