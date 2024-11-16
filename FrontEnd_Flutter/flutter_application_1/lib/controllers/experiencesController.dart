@@ -5,19 +5,17 @@ import 'package:flutter_application_1/services/experience.dart';
 
 class ExperienceController extends GetxController {
   final ExperienceService experienceService = Get.put(ExperienceService());
-
-  // Controladores de texto para la UI
   final TextEditingController ownerController = TextEditingController();
   final TextEditingController participantsController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
-  // Variables reactivas para la UI
+  
   var isLoading = false.obs;
   var errorMessage = ''.obs;
 
-  // Método para crear una nueva experiencia
+  // crear una nueva experiencia
   void createExperience() async {
-    // Validación de campos
+ 
     if (ownerController.text.isEmpty ||
         participantsController.text.isEmpty ||
         descriptionController.text.isEmpty) {
@@ -33,16 +31,14 @@ class ExperienceController extends GetxController {
       description: descriptionController.text,
     );
 
-    // Iniciar el proceso de creación
+    
     isLoading.value = true;
     errorMessage.value = '';
 
     try {
-      // Llamada al servicio para crear la experiencia
       final statusCode = await experienceService.createExperience(newExperience);
 
       if (statusCode == 201) {
-        // Manejo de respuesta exitosa
         Get.snackbar('Éxito', 'Experiencia creada con éxito');
         Get.toNamed('/experiencies');
       } else {
